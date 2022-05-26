@@ -1,4 +1,5 @@
 const userModel = require('../models/user.model');
+const userService = require('../services/user.service');
 
 exports.createUser = async (req, res) => {
     const { body } = req;
@@ -74,4 +75,10 @@ exports.getAllUsers = async (req, res) => {
         nextPage,
         data: users
     });
+}
+
+exports.getOwn = async (req, res) => {
+    const me = await userService.getById(req.user._id);
+
+    return res.status(200).json(me);
 }

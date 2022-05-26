@@ -12,6 +12,9 @@ var app = express();
 // mongoose setup
 require('./config/db');
 
+// passport strategies setup
+require('./auth');
+
 // view engine setup
 app.use(logger('dev'));
 app.use(express.json());

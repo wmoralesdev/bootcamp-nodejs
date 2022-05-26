@@ -1,58 +1,25 @@
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/user.model');
-const mailer = require('../utils/mailer');
+const userService = require('../services/user.service');
+const mailService = require('../services/mail.service');
 
 // Proceso de creacion de un token
 exports.login = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = await userModel.findOne({ email });
+        const token = await userService.login(req.body);
 
-        if (!user)
-            throw { status: 404, message: 'User not found' };
-
-        const validPass = password === user.password;
-
-        if (!validPass)
-            throw { status: 401, message: 'Invalid password' };
-
-        const payload = { _id: user._id };
-        
-        const token = jwt.sign(payload, process.env.JWT_SECRET);
-
-        return res.status(200).json({ token });
+        return res.status(token ? 200 : 404).json({ token });
     }
     catch(err) {
         // Logica personalizada para los errores
-        return res.status(err.status ?? 400).send(err);
+        return res.status(err.status ?? 400).send({err});
     }
 }
 
 exports.register = async (req, res) => {
-    const { name, lastName, email, password } = req.body;
-
     try {
-        const isEmailAvilable = !(await userModel.findOne({ email }));
-
-        if (!isEmailAvilable)
-            throw { status: 400, message: 'Email already in use' };
-
-        const newUser = new userModel({
-            name,
-            lastName,
-            email,
-            password,
-        });
-
-        await newUser.save();
-
-        const mssg = {
-            to: email,
-            subject: 'Welcome',
-            text: 'Welcome to Bootcamp-NodeJS'
-        }
-
-        await mailer(mssg);
+        const newUser = await userService.createUser(req.body);
+        await mailService.sendWelcomeEmail(newUser.email);
 
         return res.status(204).json();
     }
@@ -66,6 +33,8 @@ exports.register = async (req, res) => {
 exports.requestPassword = async (req, res) => {
     try {
         const { email } = req.query;
+
+        // 3. Buscar un usuario
         const user = await userModel.findOne({ email });
 
         if(!user)
@@ -81,13 +50,7 @@ exports.requestPassword = async (req, res) => {
 
         await user.save();
 
-        const mssg = {
-            to: email,
-            subject: 'Password recovery',
-            text: `To reset your password please visit the following link: ${user.recovery.url}`
-        }
-
-        await mailer(mssg);
+        await mailService.sendRecoveryEmail(user.email, user.recovery.url);
 
         return res.status(200).json({
             link: user.recovery.url,
@@ -105,6 +68,7 @@ exports.resetPassword = async (req, res) => {
         const { token } = req.params;
         const { password } = req.body;
 
+        // 4. Buscar un usuario
         const user = await userModel.findOne({ "recovery.token": token });
 
         if(!user)
