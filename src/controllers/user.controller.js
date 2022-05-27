@@ -52,29 +52,35 @@ exports.findByName = async (req, res) => {
 }
 
 exports.getAllUsers = async (req, res) => {
-    const { query } = req;
-    const { page, limit } = query;
-    
-    const count = await userModel.countDocuments();
-    const totalPages = Math.ceil(count / limit);
-    const hasPrev = !(page <= 1);
-    const hasNext = page < totalPages;
-    const nextPage = hasNext ?
-        `${process.env.HOST}/users?page=${(+page) + 1}&limit=${limit}` : null;
-    const prevPage = hasPrev ?
-        `${process.env.HOST}/users?page=${(+page) - 1}&limit=${limit}` : null;
+    try {
+        const { query } = req;
+        const { page, limit } = query;
+        
+        const count = await userModel.countDocuments();
+        const totalPages = Math.ceil(count / limit);
+        const hasPrev = !(page <= 1);
+        const hasNext = page < totalPages;
+        const nextPage = hasNext ?
+            `${process.env.HOST}/users?page=${(+page) + 1}&limit=${limit}` : null;
+        const prevPage = hasPrev ?
+            `${process.env.HOST}/users?page=${(+page) - 1}&limit=${limit}` : null;
 
-    const users = await userModel
-        .find()
-        .skip(((+page) - 1) * limit)
-        .limit(+(limit));
+        const users = await userModel
+            .find()
+            .skip(((+page) - 1) * limit)
+            .limit(+(limit));
 
-    return res.status(200).json({
-        count,
-        prevPage,
-        nextPage,
-        data: users
-    });
+        return res.status(200).json({
+            count,
+            prevPage,
+            nextPage,
+            data: users
+        });
+    }
+    catch(err) {
+        // Logica personalizada para los errores
+        return res.status(err.status ?? 400).send(err);
+    }
 }
 
 exports.getOwn = async (req, res) => {

@@ -1,10 +1,16 @@
 const mailer = require('../utils/mailer');
 
-exports.sendWelcomeEmail = async (to) => {
+exports.sendWelcomeEmail = async (to, image) => {
     const mssg = {
         to,
         subject: 'Welcome',
-        text: 'Welcome to Bootcamp-NodeJS'
+        text: 'Welcome to Bootcamp-NodeJS',
+        html: `
+            <div style="display: flex; flex-flow: row nowrap; justify-content: center; aligin-items: center;">
+                <p style="font-size: 18px; font-weight: 700; color: #4c3150;">Welcome to Bootcamp-NodeJS</p>
+                <img src=${image} style="height: 150px; width: 150px; border-radius: 100%;" />
+            </div>
+        `
     }
 
     await mailer(mssg);

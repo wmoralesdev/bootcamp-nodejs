@@ -18,8 +18,10 @@ exports.login = async (req, res) => {
 
 exports.register = async (req, res) => {
     try {
-        const newUser = await userService.createUser(req.body);
-        await mailService.sendWelcomeEmail(newUser.email);
+        const { file } = req;
+
+        const newUser = await userService.createUser({ ...req.body, image: file.location });
+        await mailService.sendWelcomeEmail(newUser.email, newUser.image);
 
         return res.status(204).json();
     }

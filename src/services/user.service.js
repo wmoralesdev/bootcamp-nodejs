@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const repo = require('../repositories/user.repo');
 const { signToken } = require('../utils/jwt');
 
@@ -10,9 +11,7 @@ exports.getByEmail = async (email) => {
 exports.login = async ({ email, password }) => {
     const user = await repo.get({ email });
 
-    console.log(user);
-
-    if (user.password !== password)
+    if (!(await bcrypt.compare(password, user.password)))
         throw 'Wrong password';
 
     return signToken({ _id: user._id });
@@ -30,13 +29,13 @@ exports.findByName = async (name) => {
     return users;
 }
 
-exports.createUser = async ({ name, lastName, email, password }) => {
+exports.createUser = async ({ name, lastName, email, password, image }) => {
     const isNew = await repo.get({ email }) == null;
 
     if(!isNew)
         return null;
 
-    const newUser = await repo.create({ name, lastName, email, password });
+    const newUser = await repo.create({ name, lastName, email, password, image });
 
     return newUser;
 }
