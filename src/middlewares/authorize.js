@@ -1,8 +1,9 @@
-exports.authorizeAdmin = function (req, res, next) {
+const HttpError = require('../misc/HttpError');
+
+exports.authorizeAdmin = function authorize(req, res, next) {
     const { user } = req;
 
-    if (user.role != 'admin')
-        throw { status: 403, message: 'Forbidden' };
+    if (user.role !== 'admin') throw new HttpError('Forbidden', 403);
 
     next();
-}
+};

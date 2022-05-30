@@ -5,7 +5,7 @@ const authRouter = require('./auth.router');
 
 const baseRouter = Router();
 
-baseRouter.use('/users', passport.authenticate("jwt", { session: false }), userRouter);
+baseRouter.use('/users', passport.authenticate('jwt', { session: false }), userRouter);
 baseRouter.use('/auth', authRouter);
 
 module.exports = baseRouter;

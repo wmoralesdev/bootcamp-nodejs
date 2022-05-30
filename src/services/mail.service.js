@@ -10,18 +10,18 @@ exports.sendWelcomeEmail = async (to, image) => {
                 <p style="font-size: 18px; font-weight: 700; color: #4c3150;">Welcome to Bootcamp-NodeJS</p>
                 <img src=${image} style="height: 150px; width: 150px; border-radius: 100%;" />
             </div>
-        `
-    }
+        `,
+    };
 
     await mailer(mssg);
-}
+};
 
 exports.sendRecoveryEmail = async (to, url) => {
     const mssg = {
         to,
         subject: 'Password recovery',
-        text: `To reset your password please visit the following link: ${url}`
-    }
+        text: `To reset your password please visit the following link: ${url}`,
+    };
 
     await mailer(mssg);
-}
+};

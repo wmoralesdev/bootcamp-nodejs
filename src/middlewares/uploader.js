@@ -12,13 +12,13 @@ const upload = multer({
         s3,
         bucket: process.env.AWS_BUCKET_NAME,
         acl: 'public-read',
-        metadata: function (req, file, cb) {
-            cb(null, { fieldName: file.fieldname })
+        metadata(req, file, cb) {
+            cb(null, { fieldName: file.fieldname });
         },
-        key: function (req, file, cb) {
-            cb(null, 'users/' + Date.now().toString() + '-' + file.originalname);
-        }
-    })
-})
+        key(req, file, cb) {
+            cb(null, `users/${Date.now().toString()}-${file.originalname}`);
+        },
+    }),
+});
 
 module.exports = upload;
