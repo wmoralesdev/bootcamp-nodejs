@@ -28,7 +28,6 @@ exports.getAllUsers = async (req, res) => {
     try {
         return res.status(200).json(await userService.getAll(+page, +limit));
     } catch (err) {
-        console.log(err);
         // Err contendra statusCode si es un HttpError
         return res.status(err.statusCode() || 400).json({ message: err.message });
     }
